@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitalis Adzessi | Content Moderator | Modérateur de contenu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.2s, border-color 0.3s;
+        }
+
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-accent: #3b82f6;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --gradient-1: #3b82f6;
+            --gradient-2: #8b5cf6;
+            --accent-color: #3b82f6;
+            --badge-bg: rgba(59, 130, 246, 0.1);
+            --contact-bg: #f1f5f9;
+        }
+
+        .dark-theme {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-accent: #60a5fa;
+            --border-color: #334155;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --gradient-1: #60a5fa;
+            --gradient-2: #a78bfa;
+            --accent-color: #60a5fa;
+            --badge-bg: rgba(96, 165, 250, 0.15);
+            --contact-bg: #1e293b;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 25px;
+        }
+
+        .top-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+            background: transparent;
+        }
+
+        .theme-switcher,
+        .lang-switcher {
+            background: var(--bg-card);
+            border-radius: 50px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 12px var(--shadow-color);
+            backdrop-filter: blur(4px);
+        }
+
+        .theme-toggle {
+            width: 60px;
+            height: 30px;
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .theme-toggle::before {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #f59e0b, #fbbf24);
+            border-radius: 50%;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .dark-theme .theme-toggle::before {
+            background: linear-gradient(45deg, #94a3b8, #cbd5e1);
+            transform: translateX(30px);
+        }
+
+        .theme-toggle .sun,
+        .theme-toggle .moon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+
+        .theme-toggle .sun {
+            left: 8px;
+            color: #f59e0b;
+        }
+        .theme-toggle .moon {
+            right: 8px;
+            color: #cbd5e1;
+        }
+
+        .lang-switcher {
+            display: flex;
+            gap: 4px;
+            padding: 4px 8px;
+            background: var(--bg-card);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-primary);
+        }
+
+        .lang-btn img {
+            width: 20px;
+            height: 14px;
+            border-radius: 2px;
+            object-fit: cover;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .lang-btn.active {
+            opacity: 1;
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+        }
+
+        .lang-btn.active img {
+            filter: brightness(1.1);
+        }
+
+        .lang-btn:hover:not(.active) {
+            opacity: 1;
+            background: var(--border-color);
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 40px;
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
+                        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
+            z-index: 0;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: center 30%;
+            border: 6px solid var(--bg-secondary);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        .profile-text {
+            max-width: 550px;
+            text-align: left;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, var(--gradient-1), var(--gradient-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 22px;
+            font-weight: 500;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .typing-speed {
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            padding: 10px 18px;
+            border-radius: 50px;
+            margin-top: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #16a34a;
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 35px;
+            }
+            .profile-text {
+                text-align: center;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .top-controls {
+                top: 12px;
+                right: 12px;
+                gap: 8px;
+            }
+            .lang-btn {
+                padding: 3px 8px;
+                font-size: 0.7rem;
+            }
+            .lang-btn img {
+                width: 16px;
+                height: 12px;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 18px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        h2 {
+            color: var(--text-accent);
+            margin-bottom: 22px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.1);
+            padding-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+        }
+        li {
+            margin-bottom: 14px;
+            padding-left: 14px;
+            border-left: 3px solid rgba(59, 130, 246, 0.3);
+            color: var(--text-secondary);
+        }
+        li strong {
+            color: var(--text-primary);
+        }
+
+        .languages {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .lang-tag {
+            background: rgba(59, 130, 246, 0.08);
+            padding: 14px 18px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            min-width: 220px;
+            transition: all 0.3s ease;
+        }
+
+        .flag-img {
+            width: 36px;
+            height: 24px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 22px;
+        }
+        .badge {
+            background: var(--badge-bg);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .quote {
+            font-style: italic;
+            text-align: center;
+            padding: 40px;
+            margin: 45px 0;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+            border-radius: 18px;
+            border-left: 4px solid var(--gradient-2);
+            font-size: 1.2rem;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-top: 28px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            background: var(--contact-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+        }
+        .contact-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+        }
+        .contact-icon {
+            font-size: 1.6rem;
+            color: var(--accent-color);
+        }
+
+        .resume-section {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+        }
+        .resume-btn {
+            background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .resume-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .availability {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        .avail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+        }
+
+        .jobs-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .jobs-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .job-tag {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--accent-color);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        footer {
+            text-align: center;
+            padding: 35px;
+            margin-top: 50px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-card);
+            border-radius: 18px;
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--gradient-1), var(--gradient-2));
+            color: white;
+            padding: 14px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 18px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="top-controls">
+        <div class="theme-switcher">
+            <div class="theme-toggle">
+                <i class="fas fa-sun sun"></i>
+                <i class="fas fa-moon moon"></i>
+            </div>
+        </div>
+        <div class="lang-switcher">
+            <button class="lang-btn" data-lang="ru">
+                <img src="https://flagcdn.com/w20/ru.png" alt="RU">
+            </button>
+            <button class="lang-btn" data-lang="en">
+                <img src="https://flagcdn.com/w20/gb.png" alt="EN">
+            </button>
+            <button class="lang-btn" data-lang="fr">
+                <img src="https://flagcdn.com/w20/fr.png" alt="FR">
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="header-bg"></div>
+            <div class="profile-header">
+                <img src="foto.jpg" alt="Vitalis Adzessi" class="profile-photo fade-in">
+                <div class="profile-text fade-in">
+                    <h1 id="name-display">Виталис Адзесси</h1>
+                    <div class="tagline" id="tagline-display">Специалист по модерации контента</div>
+                    <div class="typing-speed">
+                        <i class="fas fa-keyboard"></i>
+                        <span id="typing-text">Скорость печати (350+ зн./мин)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="availability fade-in">
+                <div class="avail-item"><i class="fas fa-laptop-house"></i><span id="remote-text">Удалённая работа</span></div>
+                <div class="avail-item"><i class="fas fa-user-tie"></i><span id="self-text">Самозанятый</span></div>
+                <div class="avail-item"><i class="fas fa-calendar-alt"></i><span id="schedule-text">Гибкий график</span></div>
+                <div class="avail-item"><i class="fas fa-credit-card"></i><span id="payment-text">Выплаты 2 раза в месяц</span></div>
+            </div>
+            <a href="#contact" class="btn fade-in" id="contact-btn">Связаться со мной</a>
+        </header>
+
+        <div class="main-content">
+            <div class="card fade-in">
+                <h2><i class="fas fa-user-check"></i> <span id="skills-title">Ключевые навыки</span></h2>
+                <ul id="skills-list">
+                    <li><span class="icon">✓</span> Скорость печати (350+ зн./мин)</li>
+                    <li><span class="icon">✓</span> Многоязычная аналитика</li>
+                    <li><span class="icon">✓</span> Внимание к деталям и усидчивость</li>
+                    <li><span class="icon">✓</span> Опыт контроля качества</li>
+                    <li><span class="icon">✓</span> Быстрое обучение и адаптация</li>
+                    <li><span class="icon">✓</span> Работа с большими объёмами данных</li>
+                </ul>
+                <div class="languages" id="languages-container"></div>
+            </div>
+            <div class="card fade-in">
+                <h2><i class="fas fa-tasks"></i> <span id="exp-title">Опыт для модерации</span></h2>
+                <ul id="exp-list">
+                    <li><strong>15+ лет управления</strong> — контроль процессов и качества</li>
+                    <li><strong>Преподавание языков</strong> — работа с текстами и анализ</li>
+                    <li><strong>Международные проекты</strong> — кросс-культурная коммуникация</li>
+                    <li><strong>Удалённая работа</strong> — самоорганизация и дисциплина</li>
+                    <li><strong>Техническая грамотность</strong> — быстрое освоение платформ</li>
+                </ul>
+                <div class="badges" id="badges-container">
+                    <span class="badge">Стабильный интернет</span>
+                    <span class="badge">Ultrabook (ноутбук)</span>
+                    <span class="badge">Быстрая печать</span>
+                </div>
+
+                <div class="jobs-section">
+                    <h2 style="font-size: 1.2rem; margin-top: 10px;"><i class="fas fa-comments"></i> <span id="jobs-title">Вакансии / Направления</span></h2>
+                    <div class="jobs-grid" id="jobs-container">
+                        <span class="job-tag">📱 Модератор чатов</span>
+                        <span class="job-tag">💬 Community Manager</span>
+                        <span class="job-tag">🛡️ Модератор контента</span>
+                        <span class="job-tag">📧 Support Agent</span>
+                        <span class="job-tag">🤖 AI Trainer / Reviewer</span>
+                        <span class="job-tag">🌐 Мультиязычная поддержка</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quote fade-in" id="quote-text">
+            "Не просто проверяю контент — обеспечиваю чистоту и безопасность цифрового пространства. Готов стать надёжным фильтром вашей платформы."
+        </div>
+
+        <div class="card fade-in" id="contact">
+            <h2><i class="fas fa-address-card"></i> <span id="contact-title">Контакты</span></h2>
+            <div class="contact-warning" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 16px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+                <i class="fas fa-exclamation-circle"></i> <span id="warning-text">Предпочтительный способ связи: только через мессенджеры</span>
+            </div>
+
+            <div class="contact-grid">
+                <a href="mailto:djiralskydv@gmail.com" class="contact-item" target="_blank">
+                    <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <div class="contact-label">Email</div>
+                        <div class="contact-value">djiralskydv@gmail.com</div>
+                    </div>
+                </a>
+                <a href="https://t.me/VROUSLAN" class="contact-item" target="_blank">
+                    <div class="contact-icon"><i class="fab fa-telegram"></i></div>
+                    <div>
+                        <div class="contact-label">Telegram</div>
+                        <div class="contact-value">@VROUSLAN</div>
+                    </div>
+                </a>
+                <div id="max-contact" class="contact-item" style="cursor: pointer;">
+                    <div class="contact-icon"><i class="fas fa-comment-alt"></i></div>
+                    <div>
+                        <div class="contact-label">MAX Messenger</div>
+                        <div class="contact-value" id="max-value">MAX Messenger</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fas fa-globe"></i></div>
+                    <div>
+                        <div class="contact-label" id="timezone-label">Часовой пояс</div>
+                        <div class="contact-value" id="timezone-value">🌍 GMT+0 / UTC+0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resume-section">
+                <button class="resume-btn" id="download-ru"><i class="fas fa-file-alt"></i> 📄 Скачать резюме (RU)</button>
+                <button class="resume-btn" id="download-en"><i class="fas fa-file-alt"></i> 📄 Download CV (EN)</button>
+                <button class="resume-btn" id="download-fr"><i class="fas fa-file-alt"></i> 📄 Télécharger CV (FR)</button>
+            </div>
+        </div>
+
+        <footer class="fade-in">
+            <p>© 2026 <span id="footer-name">Виталис Адзесси</span> | <span id="footer-title">Модератор контента</span></p>
+            <p style="margin-top: 10px" id="footer-ready">Готов приступить к работе в кратчайшие сроки</p>
+        </footer>
+    </div>
+
+    <script>
+        const languageData = {
+            ru: {
+                fr: { country: "Франция", level: "французский (носитель)" },
+                en: { country: "США", level: "английский (C1)" },
+                ru: { country: "Россия", level: "русский (C1)" }
+            },
+            en: {
+                fr: { country: "France", level: "French (native)" },
+                en: { country: "USA", level: "English (C1)" },
+                ru: { country: "Russia", level: "Russian (C1)" }
+            },
+            fr: {
+                fr: { country: "France", level: "Français (natif)" },
+                en: { country: "États-Unis", level: "Anglais (C1)" },
+                ru: { country: "Russie", level: "Russe (C1)" }
+            }
+        };
+
+        const jobsData = {
+            ru: ["📱 Модератор чатов", "💬 Community Manager", "🛡️ Модератор контента", "📧 Support Agent", "🤖 AI Trainer / Reviewer", "🌐 Мультиязычная поддержка"],
+            en: ["📱 Chat Moderator", "💬 Community Manager", "🛡️ Content Moderator", "📧 Support Agent", "🤖 AI Trainer / Reviewer", "🌐 Multilingual Support"],
+            fr: ["📱 Modérateur de chat", "💬 Community Manager", "🛡️ Modérateur de contenu", "📧 Agent de support", "🤖 AI Trainer / Reviewer", "🌐 Support multilingue"]
+        };
+
+        const translations = {
+            ru: {
+                name: "Виталис Адзесси", tagline: "Специалист по модерации контента", typing: "Скорость печати (350+ зн./мин)",
+                remote: "Удалённая работа", self: "Самозанятый", schedule: "Гибкий график", payment: "Выплаты 2 раза в месяц",
+                contactBtn: "Связаться со мной", skillsTitle: "Ключевые навыки", expTitle: "Опыт для модерации",
+                skills: ["Скорость печати (350+ зн./мин)","Многоязычная аналитика","Внимание к деталям и усидчивость","Опыт контроля качества","Быстрое обучение и адаптация","Работа с большими объёмами данных"],
+                exp: ["15+ лет управления — контроль процессов и качества","Преподавание языков — работа с текстами и анализ","Международные проекты — кросс-культурная коммуникация","Удалённая работа — самоорганизация и дисциплина","Техническая грамотность — быстрое освоение платформ"],
+                badges: ["Стабильный интернет", "Ultrabook (ноутбук)", "Быстрая печать"],
+                showCitizenship: true,
+                quote: "«Не просто проверяю контент — обеспечиваю чистоту и безопасность цифрового пространства. Готов стать надёжным фильтром вашей платформы.»",
+                contactTitle: "Контакты", warning: "Предпочтительный способ связи: только через мессенджеры",
+                footerName: "Виталис Адзесси", footerTitle: "Модератор контента", footerReady: "Готов приступить к работе в кратчайшие сроки",
+                jobsTitle: "Вакансии / Направления",
+                maxVisible: true,
+                maxLink: "https://max.ru/u/f9LHodD0cOKE39TtYSBeG-sLjfagERQyVhXq8JrOnSw4IOi9LSXDDQHi7PY",
+                maxLabel: "MAX Messenger",
+                timezoneLabel: "Часовой пояс",
+                timezoneValue: "🌍 GMT+0 / UTC+0"
+            },
+            en: {
+                name: "Vitalis Adzessi", tagline: "Content Moderation Specialist", typing: "Typing speed (350+ chars/min)",
+                remote: "Remote work", self: "Self-employed", schedule: "Flexible schedule", payment: "Payments twice a month",
+                contactBtn: "Contact me", skillsTitle: "Key Skills", expTitle: "Moderation Experience",
+                skills: ["Typing speed (350+ chars/min)","Multilingual analytics","Attention to detail & patience","Quality control experience","Fast learning & adaptability","Working with large data volumes"],
+                exp: ["15+ years of management — process & quality control","Language teaching — text analysis & editing","International projects — cross-cultural communication","Remote work — self-discipline & organization","Technical proficiency — quick platform adoption"],
+                badges: ["Stable internet", "Ultrabook (laptop)", "Fast typing"],
+                showCitizenship: false,
+                quote: "«I don't just moderate content — I ensure the purity and safety of the digital space. Ready to become a reliable filter for your platform.»",
+                contactTitle: "Contacts", warning: "Preferred contact method: messengers only",
+                footerName: "Vitalis Adzessi", footerTitle: "Content Moderator", footerReady: "Ready to start working as soon as possible",
+                jobsTitle: "Jobs / Directions",
+                maxVisible: false,
+                maxLink: "",
+                maxLabel: "",
+                timezoneLabel: "Time zone",
+                timezoneValue: "🌍 GMT+0 / UTC+0"
+            },
+            fr: {
+                name: "Vitalis Adzessi", tagline: "Spécialiste en modération de contenu", typing: "Vitesse de frappe (350+ caractères/min)",
+                remote: "Travail à distance", self: "Auto-entrepreneur", schedule: "Horaires flexibles", payment: "Paiements deux fois par mois",
+                contactBtn: "Me contacter", skillsTitle: "Compétences clés", expTitle: "Expérience en modération",
+                skills: ["Vitesse de frappe (350+ cpm)","Analyse multilingue","Souci du détail et assiduité","Expérience en contrôle qualité","Apprentissage rapide et adaptabilité","Traitement de gros volumes de données"],
+                exp: ["15+ ans de gestion — contrôle des processus et qualité","Enseignement des langues — travail sur les textes et analyse","Projets internationaux — communication interculturelle","Travail à distance — autonomie et discipline","Compétences techniques — adoption rapide des plateformes"],
+                badges: ["Internet stable", "Ultrabook (ordinateur portable)", "Frappe rapide"],
+                showCitizenship: false,
+                quote: "«Je ne me contente pas de modérer le contenu — je garantis la pureté et la sécurité de l'espace numérique. Prêt à devenir un filtre fiable pour votre plateforme.»",
+                contactTitle: "Coordonnées", warning: "Moyen de contact préféré : messageries uniquement",
+                footerName: "Vitalis Adzessi", footerTitle: "Modérateur de contenu", footerReady: "Prêt à commencer le travail dans les plus brefs délais",
+                jobsTitle: "Offres / Directions",
+                maxVisible: false,
+                maxLink: "",
+                maxLabel: "",
+                timezoneLabel: "Fuseau horaire",
+                timezoneValue: "🌍 GMT+0 / UTC+0"
+            }
+        };
+
+        let currentLang = "ru";
+
+        function updateLanguagesDisplay(lang) {
+            const container = document.getElementById("languages-container");
+            container.innerHTML = "";
+            const data = languageData[lang];
+            
+            const languages = [
+                { code: "fr", flag: "https://flagcdn.com/w40/fr.png" },
+                { code: "en", flag: "https://flagcdn.com/w40/gb.png" },
+                { code: "ru", flag: "https://flagcdn.com/w40/ru.png" }
+            ];
+            
+            languages.forEach(l => {
+                const langInfo = data[l.code];
+                const div = document.createElement("div");
+                div.className = "lang-tag";
+                div.innerHTML = `
+                    <img src="${l.flag}" class="flag-img">
+                    <div class="lang-info">
+                        <div class="country">${langInfo.country}</div>
+                        <div class="language">${langInfo.level}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            
+            document.getElementById("name-display").innerText = t.name;
+            document.getElementById("tagline-display").innerText = t.tagline;
+            document.getElementById("typing-text").innerText = t.typing;
+            document.getElementById("remote-text").innerText = t.remote;
+            document.getElementById("self-text").innerText = t.self;
+            document.getElementById("schedule-text").innerText = t.schedule;
+            document.getElementById("payment-text").innerText = t.payment;
+            document.getElementById("contact-btn").innerHTML = t.contactBtn;
+            document.getElementById("skills-title").innerHTML = t.skillsTitle;
+            document.getElementById("exp-title").innerHTML = t.expTitle;
+            document.getElementById("jobs-title").innerHTML = t.jobsTitle;
+            document.getElementById("timezone-label").innerText = t.timezoneLabel;
+            document.getElementById("timezone-value").innerText = t.timezoneValue;
+
+            const skillsUl = document.getElementById("skills-list");
+            skillsUl.innerHTML = "";
+            t.skills.forEach((s) => {
+                let li = document.createElement("li");
+                li.innerHTML = `<span class="icon">✓</span> ${s}`;
+                skillsUl.appendChild(li);
+            });
+
+            const expUl = document.getElementById("exp-list");
+            expUl.innerHTML = "";
+            t.exp.forEach((e) => {
+                let li = document.createElement("li");
+                li.innerHTML = e;
+                expUl.appendChild(li);
+            });
+
+            const badgesDiv = document.getElementById("badges-container");
+            badgesDiv.innerHTML = "";
+            t.badges.forEach((b) => {
+                let span = document.createElement("span");
+                span.className = "badge";
+                span.innerText = b;
+                badgesDiv.appendChild(span);
+            });
+            
+            if (t.showCitizenship) {
+                let citizenshipSpan = document.createElement("span");
+                citizenshipSpan.className = "badge";
+                citizenshipSpan.innerText = "Гражданство РФ";
+                badgesDiv.appendChild(citizenshipSpan);
+            }
+
+            const jobsContainer = document.getElementById("jobs-container");
+            jobsContainer.innerHTML = "";
+            jobsData[lang].forEach((job) => {
+                let span = document.createElement("span");
+                span.className = "job-tag";
+                span.innerText = job;
+                jobsContainer.appendChild(span);
+            });
+
+            document.getElementById("quote-text").innerText = t.quote;
+            document.getElementById("contact-title").innerHTML = t.contactTitle;
+            document.getElementById("warning-text").innerText = t.warning;
+            document.getElementById("footer-name").innerText = t.footerName;
+            document.getElementById("footer-title").innerText = t.footerTitle;
+            document.getElementById("footer-ready").innerText = t.footerReady;
+
+            const maxContact = document.getElementById("max-contact");
+            if (t.maxVisible) {
+                maxContact.classList.remove("hidden");
+                maxContact.style.cursor = "pointer";
+                maxContact.onclick = () => window.open(t.maxLink, "_blank");
+                document.getElementById("max-value").innerText = t.maxLabel;
+            } else {
+                maxContact.classList.add("hidden");
+            }
+
+            updateLanguagesDisplay(lang);
+
+            document.querySelectorAll(".lang-btn").forEach((btn) => {
+                const btnLang = btn.getAttribute("data-lang");
+                if (btnLang === lang) {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+        }
+
+        function generateResumeContent(lang) {
+            const t = translations[lang];
+            const name = t.name;
+            const title = t.tagline;
+            const typing = t.typing;
+            const skillsList = t.skills.join("\n• ");
+            const expList = t.exp.join("\n• ");
+            const badgesList = t.badges.join(", ");
+            const quote = t.quote.replace(/«|»/g, '"');
+            const citizenship = t.showCitizenship ? ", Гражданство РФ" : "";
+            const timezone = t.timezoneValue;
+
+            if (lang === "ru") {
+                return `Резюме\n${name} — ${title}\n\nКонтакты: djiralskydv@gmail.com | Telegram: @VROUSLAN\n\nСкорость печати: ${typing}\n\nКлючевые навыки:\n• ${skillsList}\n\nОпыт:\n• ${expList}\n\nДополнительно: ${badgesList}${citizenship}\n\nЧасовой пояс: ${timezone}\n\nЦитата: ${quote}\n\nГотов к удалённой работе, выплаты 2 раза в месяц.`;
+            } else if (lang === "en") {
+                return `RESUME\n${name} — ${title}\n\nContacts: djiralskydv@gmail.com | Telegram: @VROUSLAN\n\nTyping speed: ${typing}\n\nKey Skills:\n• ${skillsList}\n\nExperience:\n• ${expList}\n\nAdditional: ${badgesList}\n\nTime zone: ${timezone}\n\nQuote: ${quote}\n\nReady for remote work, payments twice a month.`;
+            } else {
+                return `CV\n${name} — ${title}\n\nContacts: djiralskydv@gmail.com | Telegram: @VROUSLAN\n\nVitesse de frappe: ${typing}\n\nCompétences clés:\n• ${skillsList}\n\nExpérience:\n• ${expList}\n\nSupplément: ${badgesList}\n\nFuseau horaire: ${timezone}\n\nCitation: ${quote}\n\nPrêt pour le travail à distance, paiements deux fois par mois.`;
+            }
+        }
+
+        function downloadResume(lang) {
+            const content = generateResumeContent(lang);
+            const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+            const link = document.createElement("a");
+            let filename = "";
+            if (lang === "ru") filename = "Resume_Vitalis_Adzessi_RU.txt";
+            else if (lang === "en") filename = "Resume_Vitalis_Adzessi_EN.txt";
+            else filename = "Resume_Vitalis_Adzessi_FR.txt";
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        document.querySelectorAll(".lang-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const lang = btn.getAttribute("data-lang");
+                updateLanguage(lang);
+            });
+        });
+
+        document.getElementById("download-ru").addEventListener("click", () => downloadResume("ru"));
+        document.getElementById("download-en").addEventListener("click", () => downloadResume("en"));
+        document.getElementById("download-fr").addEventListener("click", () => downloadResume("fr"));
+
+        const themeToggle = document.querySelector(".theme-toggle");
+        const body = document.body;
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") body.classList.add("dark-theme");
+        themeToggle.addEventListener("click", () => {
+            body.classList.toggle("dark-theme");
+            localStorage.setItem("theme", body.classList.contains("dark-theme") ? "dark" : "light");
+        });
+
+        const fadeElements = document.querySelectorAll(".fade-in");
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) entry.target.classList.add("visible");
+            });
+        }, { threshold: 0.1 });
+        fadeElements.forEach((el) => fadeObserver.observe(el));
+
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+            anchor.addEventListener("click", function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute("href");
+                if (targetId === "#") return;
+                const target = document.querySelector(targetId);
+                if (target) window.scrollTo({ top: target.offsetTop - 20, behavior: "smooth" });
+            });
+        });
+
+        updateLanguage("ru");
+    </script>
+</body>
+</html>
